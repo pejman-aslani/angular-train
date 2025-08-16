@@ -1,0 +1,168 @@
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()" class="p-4 elegant-form">
+  <div class="row">
+    <!-- فعال/غیرفعال -->
+    <div class="col-md-12 col-12 mb-3">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="enable" formControlName="enable"
+               aria-label="فعال یا غیرفعال"/>
+        <label class="form-check-label" for="enable">فعال</label>
+      </div>
+    </div>
+    <!-- نقش -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="role_name">نقش</label>
+      <select
+        class="form-select"
+        id="role_name"
+        formControlName="role_name"
+        [class.is-invalid]="userForm.get('role_name')?.touched && userForm.get('role_name')?.invalid"
+        aria-label="نقش">
+        <option *ngFor="let role of roleOptions" [value]="role.value">{{ role.label }}</option>
+      </select>
+      <div *ngIf="userForm.get('role_name')?.touched && userForm.get('role_name')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('role_name')?.errors?.['required']">نقش الزامی است.</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-12 mb-3"></div>
+    <!-- نام کاربری -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="username">نام کاربری</label>
+      <input
+        [class.is-invalid]="userForm.get('username')?.touched && userForm.get('username')?.invalid"
+        class="form-control"
+        id="username"
+        formControlName="username"
+        aria-label="نام کاربری"/>
+      <div *ngIf="userForm.get('username')?.touched && userForm.get('username')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('username')?.errors?.['required']">نام کاربری الزامی است.</div>
+        <div *ngIf="userForm.get('username')?.errors?.['pattern']">نام کاربری فقط می‌تواند شامل حروف و اعداد انگلیسی
+          باشد.
+        </div>
+      </div>
+    </div>
+
+    <!-- رمز عبور -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="password">رمز عبور</label>
+      <input
+        type="password"
+        class="form-control"
+        id="password"
+        formControlName="password"
+        [class.is-invalid]="userForm.get('password')?.touched && userForm.get('password')?.invalid"
+        aria-label="رمز عبور"/>
+      <div *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('password')?.errors?.['required']">رمز عبور الزامی است.</div>
+        <div *ngIf="userForm.get('password')?.errors?.['minlength']">رمز عبور باید حداقل 6 کاراکتر باشد.</div>
+      </div>
+    </div>
+
+    <!-- نام -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="f_name">نام</label>
+      <input
+        class="form-control"
+        id="f_name"
+        formControlName="f_name"
+        [class.is-invalid]="userForm.get('f_name')?.touched && userForm.get('f_name')?.invalid"
+        aria-label="نام"/>
+      <div *ngIf="userForm.get('f_name')?.touched && userForm.get('f_name')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('f_name')?.errors?.['required']">نام الزامی است.</div>
+      </div>
+    </div>
+
+    <!-- نام خانوادگی -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="l_name">نام خانوادگی</label>
+      <input
+        class="form-control"
+        id="l_name"
+        formControlName="l_name"
+        [class.is-invalid]="userForm.get('l_name')?.touched && userForm.get('l_name')?.invalid"
+        aria-label="نام خانوادگی"/>
+      <div *ngIf="userForm.get('l_name')?.touched && userForm.get('l_name')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('l_name')?.errors?.['required']">نام خانوادگی الزامی است.</div>
+      </div>
+    </div>
+
+    <!-- کد ملی -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="national_code">کد ملی</label>
+      <input
+        class="form-control"
+        type="text"
+        id="national_code"
+        formControlName="national_code"
+        [class.is-invalid]="userForm.get('national_code')?.touched && userForm.get('national_code')?.invalid"
+        aria-label="کد ملی"/>
+      <div *ngIf="userForm.get('national_code')?.touched && userForm.get('national_code')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('national_code')?.errors?.['required']">کد ملی الزامی است.</div>
+      </div>
+    </div>
+
+    <!-- ایمیل -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="email">ایمیل</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        formControlName="email"
+        [class.is-invalid]="userForm.get('email')?.touched && userForm.get('email')?.invalid"
+        aria-label="ایمیل"/>
+      <div *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('email')?.errors?.['required']">ایمیل الزامی است.</div>
+        <div *ngIf="userForm.get('email')?.errors?.['email']">فرمت ایمیل صحیح نیست.</div>
+      </div>
+    </div>
+
+    <!-- شماره تلفن همراه -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="phone_number">شماره تلفن همراه</label>
+      <input
+        class="form-control"
+        id="phone_number"
+        formControlName="phone_number"
+        [class.is-invalid]="userForm.get('phone_number')?.touched && userForm.get('phone_number')?.invalid"
+        aria-label="شماره تلفن همراه"/>
+      <div *ngIf="userForm.get('phone_number')?.touched && userForm.get('phone_number')?.invalid" class="text-danger">
+        <div *ngIf="userForm.get('phone_number')?.errors?.['required']">شماره تلفن الزامی است.</div>
+        <div *ngIf="userForm.get('phone_number')?.errors?.['pattern']">شماره تلفن باید با فرمت معتبر ایرانی باشد.</div>
+      </div>
+    </div>
+
+    <!-- تاریخ تولد -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="birth_date">تاریخ تولد</label>
+      <app-jalali-datetime-picker
+        [control]="birthDateControl"
+        [dateOnly]="true"
+        [format]="dateFormats"
+        id="birth_date"
+        placeholder="تاریخ تولد را انتخاب کنید"
+        aria-label="تاریخ تولد"></app-jalali-datetime-picker>
+      <div *ngIf="birthDateControl.touched && birthDateControl.invalid" class="text-danger">
+        <div *ngIf="birthDateControl.errors?.['required']">تاریخ تولد الزامی است.</div>
+      </div>
+    </div>
+    <!-- تاریخ استخدام -->
+    <div class="col-md-6 col-12 mb-3">
+      <label class="form-label" for="employed_date">تاریخ استخدام</label>
+      <app-jalali-datetime-picker
+        [control]="employedDateControl"
+        [dateOnly]="true"
+        [format]="dateFormats"
+        id="employed_date"
+        placeholder="تاریخ استخدام را انتخاب کنید"
+        aria-label="تاریخ استخدام"></app-jalali-datetime-picker>
+      <div *ngIf="employedDateControl.touched && employedDateControl.invalid" class="text-danger">
+        <div *ngIf="employedDateControl.errors?.['required']">تاریخ استخدام الزامی است.</div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end mt-4">
+
+    <button type="submit" class="btn btn-success">ذخیره</button>
+    <!--    <button type="button" class="btn btn-danger" (click)="oncancel" >بازگشت</button>-->
+  </div>
+</form>
