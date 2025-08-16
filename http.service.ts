@@ -29,7 +29,7 @@ export interface ApiResultArray<T> {
 export class HttpService {
   // private readonly baseUrl = `${window.location.protocol}//${window.location.hostname}`;
     private readonly baseUrl = `http://localhost:9000`;
-  // private readonly baseUrl = `https://172.17.7.50/api`;
+
   public readonly apiUrl =`https://localhost`;
   constructor(
     private readonly http: HttpClient,
