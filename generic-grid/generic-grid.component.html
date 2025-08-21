@@ -1,0 +1,268 @@
+
+<div class="container-fluid custom-grid-container" [ngClass]="{ 'full-height-container': fullHeight }" dir="rtl">
+  <!-- Error Message -->
+  <div class="alert alert-danger text-center" *ngIf="errorMessage" role="alert">
+    {{ errorMessage }}
+    <button class="btn btn-link" (click)="retry()">تلاش مجدد</button>
+  </div>
+
+  <!-- Clear Filters Button -->
+  <div class="row mb-3 align-items-center">
+    <div class="col-12 text-end d-flex justify-content-end gap-2">
+      <button
+        class="btn custom-btn-outline-primary"
+        (click)="clearAllFilters()"
+        *ngIf="filters && objectKeys(filters).length"
+        aria-label="پاک کردن همه فیلترها"
+        [disabled]="loading"
+      >
+        <i class="bi bi-eraser"></i> پاک کردن همه فیلترها
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="custom-table-responsive card shadow-sm" [ngClass]="{ 'full-height-grid': fullHeight }">
+    <div class="custom-table-body-container">
+      <div class="custom-loading-overlay" *ngIf="loading">
+        <div class="custom-spinner">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+        </div>
+      </div>
+      <div class="custom-no-data-message" *ngIf="!data?.length && !loading">
+        هیچ داده‌ای یافت نشد
+      </div>
+      <table class="custom-table">
+        <thead class="custom-table-header">
+        <tr>
+          <th *ngFor="let column of columns" scope="col" [style.width]="column.width">
+            <div class="d-flex align-items-center justify-content-center">
+                <span
+                  [ngClass]="{
+                    'custom-sortable': column.sortable !== false && !column.expandable
+                  }"
+                  (click)="column.sortable !== false && !column.expandable && !loading && onSortChange(column.columnDef)"
+                  role="button"
+                  [attr.aria-sort]="sortColumn === column.columnDef ? sortDirection || 'none' : 'none'"
+                  [class.disabled]="loading"
+                >
+                  {{ column.header }}
+                  <i
+                    class="bi ms-1"
+                    *ngIf="sortColumn === column.columnDef && sortDirection && !column.expandable"
+                    [ngClass]="sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down'"
+                  ></i>
+                </span>
+              <i class="bi bi-funnel ms-2" *ngIf="column.filterable" aria-hidden="true"></i>
+            </div>
+          </th>
+        </tr>
+        <tr *ngIf="hasFilterableColumns" class="custom-filter-row">
+          <th *ngFor="let column of columns" scope="col" [style.width]="column.width">
+            <div [formGroup]="filterForm">
+              <ng-container *ngIf="column.filterable">
+                <ng-container *ngIf="column.filterTemplate; else defaultFilterTemplate">
+                  <ng-container
+                    *ngTemplateOutlet="column.filterTemplate; context: { form: filterForm, columnDef: column.columnDef }"
+                  ></ng-container>
+                </ng-container>
+                <ng-template #defaultFilterTemplate>
+                  <ng-container [ngSwitch]="column.dataType">
+                    <div class="input-group input-group-sm" *ngSwitchCase="'enum'">
+                      <select
+                        class="form-select custom-form-select"
+                        [formControlName]="column.columnDef"
+                        [attr.aria-label]="'فیلتر ' + column.header"
+                        [disabled]="loading"
+                      >
+                        <option value="">همه</option>
+                        <option *ngFor="let option of column.filterOptions" [value]="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                      <button
+                        class="btn custom-btn-primary"
+                        type="button"
+                        *ngIf="filterForm.get(column.columnDef)?.value"
+                        (click)="clearFilter(column.columnDef)"
+                        [attr.aria-label]="'پاک کردن فیلتر ' + column.header"
+                        [disabled]="loading"
+                      >
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                    <div class="input-group input-group-sm" *ngSwitchCase="'boolean'">
+                      <select
+                        class="form-select custom-form-select"
+                        [formControlName]="column.columnDef"
+                        [attr.aria-label]="'فیلتر ' + column.header"
+                        [disabled]="loading"
+                      >
+                        <option value="">همه</option>
+                        <option value="true">فعال</option>
+                        <option value="false">غیرفعال</option>
+                      </select>
+                      <button
+                        class="btn custom-btn-primary"
+                        type="button"
+                        *ngIf="filterForm.get(column.columnDef)?.value"
+                        (click)="clearFilter(column.columnDef)"
+                        [attr.aria-label]="'پاک کردن فیلتر ' + column.header"
+                        [disabled]="loading"
+                      >
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                    <div class="input-group input-group-sm" *ngSwitchDefault>
+                      <input
+                        [type]="getFilterInputType(column)"
+                        class="form-control custom-form-control"
+                        [formControlName]="column.columnDef"
+                        [placeholder]="'فیلتر ' + column.header"
+                        [attr.aria-label]="'فیلتر ' + column.header"
+                        [disabled]="loading"
+                      />
+                      <button
+                        class="btn custom-btn-primary"
+                        type="button"
+                        *ngIf="filterForm.get(column.columnDef)?.value"
+                        (click)="clearFilter(column.columnDef)"
+                        [attr.aria-label]="'پاک کردن فیلتر ' + column.header"
+                        [disabled]="loading"
+                      >
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </ng-container>
+                </ng-template>
+              </ng-container>
+            </div>
+          </th>
+        </tr>
+        </thead>
+        <tbody [ngClass]="{ 'custom-loading': loading }">
+        <ng-container *ngFor="let item of data; let i = index">
+          <tr class="custom-table-row">
+            <td *ngFor="let column of columns" [ngClass]="{ 'text-center': column.dataType === 'number' }" [style.width]="column.width">
+              <ng-container *ngIf="column.expandable">
+                <button
+                  class="btn custom-btn-toggle"
+                  (click)="toggleRow(item, i)"
+                  [attr.aria-expanded]="isRowExpanded(i)"
+                  [attr.aria-label]="isRowExpanded(i) ? 'بستن جزئیات' : 'باز کردن جزئیات'"
+                >
+                  <i class="bi" [ngClass]="isRowExpanded(i) ? 'bi-chevron-down' : 'bi-chevron-left'"></i>
+                </button>
+              </ng-container>
+              <ng-container *ngIf="column.template && !column.expandable">
+                  <span class="cell-content" [title]="column.cell(item)">
+                    <ng-container *ngTemplateOutlet="column.template; context: { $implicit: item }"></ng-container>
+                  </span>
+              </ng-container>
+              <ng-container *ngIf="!column.template && !column.expandable">
+                  <span class="cell-content" [title]="column.cell(item)">
+                    {{ column.cell(item) }}
+                  </span>
+              </ng-container>
+            </td>
+          </tr>
+          <tr *ngIf="isRowExpanded(i) && detailTemplate" class="custom-detail-row">
+            <td [attr.colspan]="columns.length">
+              <ng-container *ngTemplateOutlet="detailTemplate; context: { $implicit: item }"></ng-container>
+            </td>
+          </tr>
+        </ng-container>
+        <!-- Placeholder Row for Empty Table -->
+        <tr *ngIf="!data?.length && !loading" class="custom-placeholder-row">
+          <td [attr.colspan]="columns.length" class="text-center"></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav aria-label="ناوبری صفحه" *ngIf="totalCount > 0 && !loading" class="mt-4">
+    <ul class="pagination custom-pagination justify-content-center gap-2">
+      <li class="custom-page-item" [ngClass]="{ 'custom-disabled': pageIndex === 0 || loading }">
+        <a
+          class="custom-page-link"
+          (click)="!loading && onPageChange(0, pageSize)"
+          [attr.aria-disabled]="pageIndex === 0 || loading ? 'true' : 'false'"
+          aria-label="اولین صفحه"
+          role="button"
+        >
+          <i class="bi bi-chevron-double-right"></i>
+        </a>
+      </li>
+      <li class="custom-page-item" [ngClass]="{ 'custom-disabled': pageIndex === 0 || loading }">
+        <a
+          class="custom-page-link"
+          (click)="!loading && onPageChange(pageIndex - 1, pageSize)"
+          [attr.aria-disabled]="pageIndex === 0 || loading ? 'true' : 'false'"
+          aria-label="صفحه قبلی"
+          role="button"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+      <li
+        class="custom-page-item"
+        *ngFor="let page of getPageRange()"
+        [ngClass]="{ 'custom-active': page === pageIndex, 'custom-disabled': loading || page === pageIndex }"
+      >
+        <a
+          class="custom-page-link"
+          (click)="!loading && page !== pageIndex && onPageChange(page, pageSize)"
+          role="button"
+          [attr.aria-label]="'صفحه ' + (page + 1)"
+          [attr.aria-current]="page === pageIndex ? 'page' : null"
+        >
+          {{ page + 1 }}
+        </a>
+      </li>
+      <li class="custom-page-item" [ngClass]="{ 'custom-disabled': pageIndex >= getPageCount() - 1 || loading }">
+        <a
+          class="custom-page-link"
+          (click)="!loading && onPageChange(pageIndex + 1, pageSize)"
+          [attr.aria-disabled]="pageIndex >= getPageCount() - 1 || loading ? 'true' : 'false'"
+          aria-label="صفحه بعدی"
+          role="button"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      <li class="custom-page-item" [ngClass]="{ 'custom-disabled': pageIndex >= getPageCount() - 1 || loading }">
+        <a
+          class="custom-page-link"
+          (click)="!loading && onPageChange(getPageCount() - 1, pageSize)"
+          [attr.aria-disabled]="pageIndex >= getPageCount() - 1 || loading ? 'true' : 'false'"
+          aria-label="آخرین صفحه"
+          role="button"
+        >
+          <i class="bi bi-chevron-double-left"></i>
+        </a>
+      </li>
+    </ul>
+    <div class="d-flex justify-content-center align-items-center mt-3 gap-3">
+      <span>تعداد در صفحه:</span>
+      <select
+        class="form-select custom-form-select w-auto"
+        [(ngModel)]="pageSize"
+        (ngModelChange)="!loading && onPageChange(0, $event)"
+        [disabled]="loading"
+        aria-label="تعداد در صفحه"
+      >
+        <option *ngFor="let size of pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+    <!-- Meta Data Display -->
+    <div class="meta-info card shadow-sm mt-3 p-2 text-center">
+      <p class="mb-1">تعداد کل: {{ totalCount || 0 }}</p>
+    </div>
+  </nav>
+</div>
