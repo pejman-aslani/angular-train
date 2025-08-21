@@ -1,0 +1,82 @@
+<div class="container-fluid p-3">
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded-3 shadow-sm">
+        <h4 class="mb-0">
+          <i class="bi bi-people-fill me-2"></i>مدیریت کاربران
+        </h4>
+        <button class="btn btn-success btn-sm" (click)="openAddUserDialog()">
+          <i class="bi bi-plus-lg me-1"></i> کاربر جدید
+        </button>
+      </div>
+      <app-generic-grid
+        [data]="users"
+        [columns]="columns"
+        [totalCount]="totalCount"
+        [pageSize]="pageSize"
+        [loading]="loading"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        [sortColumn]="sortColumn"
+        [sortDirection]="sortDirection"
+        (pageChange)="onPageChange($event)"
+        (sortChange)="onSortChange($event)"
+        (searchChange)="onSearchChange($event)"
+        (filterChange)="onFilterChange($event)"
+      >
+        <ng-template #genderTemplate let-user>
+          <span class="badge rounded-pill"
+                [class.bg-primary]="user.gender === 'male'"
+                [class.bg-danger]="user.gender === 'female'"
+                [class.bg-secondary]="!user.gender || (user.gender !== 'male' && user.gender !== 'female')">
+            <i class="bi me-1"
+               [class.bi-gender-male]="user.gender === 'male'"
+               [class.bi-gender-female]="user.gender === 'female'"></i>
+            {{ user.gender === 'male' ? 'مرد' : user.gender === 'female' ? 'زن' : 'نامشخص' }}
+          </span>
+        </ng-template>
+      </app-generic-grid>
+
+      <ng-template #actionsTemplate let-user>
+        <div class="d-flex gap-2 justify-content-center">
+
+          <span class="custom-icon custom-icon-edit" (click)="editUser(user)" title="ویرایش">
+            <i class="bi bi-pencil-square"></i>
+          </span>
+          <span class="custom-icon custom-icon-delete" (click)="openDeleteModal(user)" title="حذف">
+            <i class="bi bi-trash"></i>
+          </span>
+        </div>
+      </ng-template>
+
+      
+    </div>
+  </div>
+</div>
+
+<ng-template #userModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">{{ isEditMode ? 'ویرایش کاربر' : 'افزودن کاربر' }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+    <app-user-form
+      [user]="selectedUser"
+      [isEditMode]="isEditMode"
+      (saved)="onUserSaved()"
+      (cancel)="closeModal()"
+    ></app-user-form>
+  </div>
+</ng-template>
+<app-confirmation-modal
+  [isOpen]="showModalDelete"
+  title="تأیید حذف"
+  message="آیا مطمئنید می‌خواهید این کاربر را حذف کنید؟"
+  confirmButtonText="حذف"
+  cancelButtonText="انصراف"
+  confirmButtonColor="danger"
+  cancelButtonColor="secondary"
+  (confirm)="handleConfirm()"
+  (cancel)="handleCancel()"
+></app-confirmation-modal>
