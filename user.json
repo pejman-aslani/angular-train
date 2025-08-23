@@ -1,0 +1,17 @@
+{
+  "username": "pejma1nadmin1",
+  "password": "7799",
+  "f_name": "پژمان",
+  "role": "manager",
+  "national_code":"2231120",
+  "l_name": "اصلانی",
+  "email": "pejman.as1lani@gmail.com",
+  "gender": "male",
+  "phone_number": "+989234456789",
+  "birth_date": "1990-05-15",
+  "date_employed": "2023-01-01",
+  "internal_number": "11001",
+  "internal_number_type": 1,
+  "webrtc_username": "pe2jm12anrtc",
+  "webrtc_password": "webrtc123"
+}
