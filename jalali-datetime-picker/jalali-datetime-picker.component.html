@@ -1,0 +1,70 @@
+<div class="position-relative" dir="rtl">
+  <div class="input-group">
+    <input
+      type="text"
+      class="form-control elegant-input"
+      [formControl]="control"
+      [placeholder]="placeholder"
+      (click)="togglePicker($event)"
+      [disabled]="isLocked"
+      readonly
+      aria-label="انتخاب تاریخ و ساعت"
+    />
+    <span class="input-group-text elegant-icon-bg"><i class="bi bi-calendar3"></i></span>
+  </div>
+
+  <div #pickerContainer *ngIf="showPicker" class="datetime-picker shadow-lg animate__animated animate__fadeIn">
+    <div class="picker-header">
+      <button type="button" class="btn-nav" (click)="changeYear(-1)"><i class="bi bi-chevron-double-right"></i></button>
+      <span class="dropdown-toggle" (click)="toggleYearDropdown($event)">{{ calendarType === 'jalali' ? selectedDate.jYear() : selectedDate.year() }}</span>
+      <button type="button" class="btn-nav" (click)="changeYear(1)"><i class="bi bi-chevron-double-left"></i></button>
+      <div *ngIf="showYearDropdown" class="dropdown-menu-custom show">
+        <button type="button" *ngFor="let year of years" class="dropdown-item" (click)="selectYear(year, $event)">{{ year }}</button>
+      </div>
+    </div>
+    <div class="picker-header">
+      <button type="button" class="btn-nav" (click)="changeMonth(-1)"><i class="bi bi-chevron-right"></i></button>
+      <span class="dropdown-toggle" (click)="toggleMonthDropdown($event)">{{ months[calendarType === 'jalali' ? selectedDate.jMonth() : selectedDate.month()] }}</span>
+      <button type="button" class="btn-nav" (click)="changeMonth(1)"><i class="bi bi-chevron-left"></i></button>
+      <div *ngIf="showMonthDropdown" class="dropdown-menu-custom show">
+        <button type="button" *ngFor="let month of months; let i = index" class="dropdown-item" (click)="selectMonth(i, $event)">{{ month }}</button>
+      </div>
+    </div>
+
+    <div *ngIf="!dateOnly" class="time-picker-inline">
+      <div class="time-unit-container">
+        <div class="time-value" (click)="toggleTimePanel('hour', $event)">{{ selectedHour | number:'2.0' }}</div>
+        <div *ngIf="showHourPanel" class="dropdown-menu-custom show">
+          <button type="button" *ngFor="let hour of hours" class="dropdown-item" (click)="selectTimeValue('hour', hour, $event)">{{ hour | number:'2.0' }}</button>
+        </div>
+      </div>
+      <div class="time-separator">:</div>
+      <div class="time-unit-container">
+        <div class="time-value" (click)="toggleTimePanel('minute', $event)">{{ selectedMinute | number:'2.0' }}</div>
+        <div *ngIf="showMinutePanel" class="dropdown-menu-custom show">
+          <button type="button" *ngFor="let minute of minutesAndSeconds" class="dropdown-item" (click)="selectTimeValue('minute', minute, $event)">{{ minute | number:'2.0' }}</button>
+        </div>
+      </div>
+      <div class="time-separator">:</div>
+      <div class="time-unit-container">
+        <div class="time-value" (click)="toggleTimePanel('second', $event)">{{ selectedSecond | number:'2.0' }}</div>
+        <div *ngIf="showSecondPanel" class="dropdown-menu-custom show">
+          <button type="button" *ngFor="let second of minutesAndSeconds" class="dropdown-item" (click)="selectTimeValue('second', second, $event)">{{ second | number:'2.0' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="picker-body">
+      <div class="day-name" *ngFor="let dayName of ['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج']">{{ dayName }}</div>
+      <div *ngFor="let day of days" class="day">
+        <button type="button" class="btn-day" [class.active]="(calendarType === 'jalali' ? selectedDate.jDate() : selectedDate.date()) === day" (click)="selectDay(day)">{{ day }}</button>
+      </div>
+    </div>
+
+    <div class="picker-footer">
+      <button type="button" class="btn-footer-action" (click)="clearValue()" title="پاک کردن"><i class="bi bi-trash3"></i></button>
+      <div class="flex-grow-1"></div>
+      <button type="button" class="btn-confirm" (click)="confirmAndClose()">تایید</button>
+    </div>
+  </div>
+</div>
